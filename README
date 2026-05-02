@@ -1,0 +1,42 @@
+VVVVV-- PARTE 1: TRANSAÇÕES BÁSICAS
+-- Desabilitando o autocommit para controle manual
+SET autocommit = 0;
+
+START TRANSACTION;
+
+-- Exemplo de consulta e modificação
+SELECT * FROM produtos;
+INSERT INTO produtos (nome, preco) VALUES ('Teclado Gamer RGB', 180.00);
+UPDATE produtos SET preco = 210.00 WHERE nome = 'Teclado Gamer RGB';
+
+-- Se as operações acima estiverem corretas, confirme:
+COMMIT;
+
+
+-- PARTE 2: TRANSAÇÃO COM PROCEDURE E VERIFICAÇÃO DE ERRO
+DELIMITER //
+
+CREATE PROCEDURE executando_transacao_segura()
+BEGIN
+    -- Declaração de um handler para capturar erros
+    DECLARE exit handler FOR SQLEXCEPTION
+    BEGIN
+        -- Caso ocorra qualquer erro, desfaz as alterações
+        ROLLBACK;
+        SELECT 'Erro detectado: Transação cancelada (Rollback executado)' AS Mensagem;
+    END;
+
+    START TRANSACTION;
+    
+    -- Inserindo dados de teste (ajuste as colunas conforme seu banco)
+    INSERT INTO produtos (nome, preco) VALUES ('Mouse Gamer', 120.00);
+    
+    -- Se tudo ocorrer bem, salva permanentemente
+    COMMIT;
+    SELECT 'Transação concluída com sucesso!' AS Mensagem;
+END //
+
+DELIMITER ;
+
+-- Para testar a procedure:
+-- CALL executando_transacao_segura();
